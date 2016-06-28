@@ -8,7 +8,7 @@ var GameBox = React.createClass({
 
     getInitialState: function() {
         return {
-            countries: [],
+            countries: null,
             currentCountry: null,
             currentCountryBorders: [],
             gameMode: 0,
@@ -22,27 +22,30 @@ var GameBox = React.createClass({
         var req = new XMLHttpRequest();
         req.open("GET", url);
         req.onload = function() {
+            console.log("retieved data");
             var data = JSON.parse(req.responseText);
             this.setState({countries: data});
             this.setState({currentCountry: this.grabRandomCountry(), gameMode: parseInt(Math.random() * 5)});
             this.setState({currentCountryBorders: this.getCountryBorders(data[0].borders)});
         }.bind(this);
         req.send(null);
+        console.log("asking for data....");
     },
 
     render: function() {
 
-        
+
 
         return (
             <div>
                 <h1>🌍 Countries of The World 🌍</h1>
-                <GameView gameMode={this.state.gameMode} country={this.state.currentCountry} borders={this.state.currentCountryBorders}/>
+                <GameView gameMode={this.state.gameMode} country={this.state.currentCountry} borders={this.state.currentCountryBorders} finishRound={this.finishRound}/>
             </div>
         );
     },
 
     finishRound: function(correctAnswer) {
+        console.log('ca', correctAnswer);
         if (correctAnswer) {
             this.setState({score: this.state.score + 1});
         }

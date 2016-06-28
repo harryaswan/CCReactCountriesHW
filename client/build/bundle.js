@@ -19942,6 +19942,7 @@
 	"use strict";
 	
 	var React = __webpack_require__(1);
+	var GameInput = __webpack_require__(166);
 	
 	var GameView = React.createClass({
 	    displayName: "GameView",
@@ -19957,16 +19958,21 @@
 	
 	            switch (this.props.gameMode) {
 	                case 0:
-	                    question = "What is the capital of " + this.props.country.name;
+	                    question = "What is the capital of " + this.props.country.name + "?";
 	                    answer = this.props.country.capital;
 	                    break;
 	                case 1:
-	                    question = "1What is the capital of " + this.props.country.name;
-	                    answer = this.props.country.capital;
+	                    question = this.props.country.capital + " is the capital of what country?";
+	                    answer = this.props.country.name;
 	                    break;
 	                case 2:
-	                    question = "2What is the capital of " + this.props.country.name;
-	                    answer = this.props.country.capital;
+	                    var bordersString = "";
+	                    for (bcIndex in this.props.borders) {
+	                        bordersString += this.props.borders[bcIndex];
+	                        bordersString += bcIndex < this.props.borders.length - 2 ? ", " : " and ";
+	                    }
+	                    question = "What country borders all of these countries: " + bordersString;
+	                    answer = this.props.country.name;
 	                    break;
 	                case 3:
 	                    question = "3What is the capital of " + this.props.country.name;
@@ -20007,8 +20013,12 @@
 	                null,
 	                "Answer: ",
 	                answer
-	            )
+	            ),
+	            React.createElement(GameInput, { onSubmit: this.handleAnswerSubmit })
 	        );
+	    },
+	    handleAnswerSubmit: function handleAnswerSubmit(answerText) {
+	        this.props.finishRound(this.state.answer === answerText);
 	    }
 	
 	});
@@ -20033,7 +20043,7 @@
 	
 	    getInitialState: function getInitialState() {
 	        return {
-	            countries: [],
+	            countries: null,
 	            currentCountry: null,
 	            currentCountryBorders: [],
 	            gameMode: 0,
@@ -20047,12 +20057,14 @@
 	        var req = new XMLHttpRequest();
 	        req.open("GET", url);
 	        req.onload = function () {
+	            console.log("retieved data");
 	            var data = JSON.parse(req.responseText);
 	            this.setState({ countries: data });
 	            this.setState({ currentCountry: this.grabRandomCountry(), gameMode: parseInt(Math.random() * 5) });
 	            this.setState({ currentCountryBorders: this.getCountryBorders(data[0].borders) });
 	        }.bind(this);
 	        req.send(null);
+	        console.log("asking for data....");
 	    },
 	
 	    render: function render() {
@@ -20065,11 +20077,12 @@
 	                null,
 	                '🌍 Countries of The World 🌍'
 	            ),
-	            React.createElement(GameView, { gameMode: this.state.gameMode, country: this.state.currentCountry, borders: this.state.currentCountryBorders })
+	            React.createElement(GameView, { gameMode: this.state.gameMode, country: this.state.currentCountry, borders: this.state.currentCountryBorders, finishRound: this.finishRound })
 	        );
 	    },
 	
 	    finishRound: function finishRound(correctAnswer) {
+	        console.log('ca', correctAnswer);
 	        if (correctAnswer) {
 	            this.setState({ score: this.state.score + 1 });
 	        }
@@ -20120,6 +20133,45 @@
 	});
 	
 	module.exports = GameBox;
+
+/***/ },
+/* 166 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var React = __webpack_require__(1);
+	var PropTypes = React.PropTypes;
+	
+	var GameInput = React.createClass({
+	    displayName: "GameInput",
+	
+	
+	    getInitialState: function getInitialState() {
+	        return {
+	            answerText: null
+	        };
+	    },
+	
+	    render: function render() {
+	        return React.createElement(
+	            "form",
+	            { onSubmit: this.handleSubmit },
+	            React.createElement("input", { type: "text", onChange: this.handleTextChange, value: this.state.answerText }),
+	            React.createElement("input", { type: "submit", value: "Guess!" })
+	        );
+	    },
+	    handleTextChange: function handleTextChange(e) {
+	        this.setState({ answerText: e.target.value });
+	    },
+	    handleSubmit: function handleSubmit(e) {
+	        e.preventDefault();
+	        this.props.onsubmit(this.state.answerText);
+	    }
+	
+	});
+	
+	module.exports = GameInput;
 
 /***/ }
 /******/ ]);

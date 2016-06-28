@@ -1,4 +1,6 @@
 var React = require('react');
+var GameInput = require("./GameInput.jsx");
+
 
 var GameView = React.createClass({
 
@@ -12,16 +14,21 @@ var GameView = React.createClass({
 
             switch (this.props.gameMode) {
                 case 0:
-                    question = "What is the capital of " + this.props.country.name;
+                    question = "What is the capital of " + this.props.country.name + "?";
                     answer = this.props.country.capital;
                     break;
                 case 1:
-                    question = "1What is the capital of " + this.props.country.name;
-                    answer = this.props.country.capital;
+                    question = this.props.country.capital + " is the capital of what country?";
+                    answer = this.props.country.name;
                     break;
                 case 2:
-                    question = "2What is the capital of " + this.props.country.name;
-                    answer = this.props.country.capital;
+                    var bordersString = "";
+                    for (bcIndex in this.props.borders) {
+                        bordersString += this.props.borders[bcIndex];
+                        bordersString += (bcIndex < (this.props.borders.length - 2)) ? ", " : " and ";
+                    }
+                    question = "What country borders all of these countries: " + bordersString;
+                    answer = this.props.country.name;
                     break;
                 case 3:
                     question = "3What is the capital of " + this.props.country.name;
@@ -44,9 +51,12 @@ var GameView = React.createClass({
                 <br></br>
                 <p>Question: {question}</p>
                 <p>Answer: {answer}</p>
-
+                <GameInput onSubmit={this.handleAnswerSubmit} />
             </div>
         );
+    },
+    handleAnswerSubmit: function(answerText) {
+        this.props.finishRound(this.state.answer === answerText);
     }
 
 });
