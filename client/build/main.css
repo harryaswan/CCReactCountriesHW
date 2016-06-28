@@ -1,0 +1,33 @@
+body {
+    background: #70cfcc;
+    font-family: 'Yatra One', cursive;
+}
+#app {
+    width: 50%;
+    margin: auto;
+    text-align: center;
+}
+h1 {
+
+}
+select {
+    font-size: 30px;
+    background: #41c05e;
+    border: 0;
+    font-family: 'Yatra One', cursive;
+}
+.countryInfo {
+    background: #4ac3a9;
+    border-radius: 5px;
+}
+.countryInfo b {
+    text-decoration: underline;
+    color: #1c554d;
+}
+.countryInfo p {
+    color: #000000;
+}
+.dataDump {
+    text-align: left;
+    margin-top: 200px;
+}
