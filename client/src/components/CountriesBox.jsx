@@ -2,6 +2,7 @@ var React = require('react');
 var CountrySelector = require('./CountrySelector.jsx');
 var RegionSelector = require('./RegionSelector.jsx');
 var CountryDisplay = require('./CountryDisplay.jsx');
+var GameView = require('./GameView.jsx');
 
 var CountriesBox = React.createClass({
 
@@ -12,6 +13,7 @@ var CountriesBox = React.createClass({
             currentCountryBorders: [],
             currentRegion: null,
             regions: []
+            score: 0;
         };
     },
 
@@ -40,12 +42,21 @@ var CountriesBox = React.createClass({
         return (
             <div>
                 <h1>🌍 Countries of The World 🌍</h1>
-                <RegionSelector data={this.state.regions} onregionchange={this.handleRegionSelect}/>
-                <CountrySelector data={this.grabCountries('region', this.state.currentRegion)} oncountrychange={this.handleCountrySelect} />
-                <CountryDisplay country={this.state.currentCountry} borders={this.state.currentCountryBorders}/>
+                <GameView country={this.state.currentCountry}/>
             </div>
         );
     },
+
+    finishRound: function(correctAnswer) {
+        if (correctAnswer) {
+            this.setState({score: this.state.score + 1});
+        }
+        this.setState({currentCountry: this.grabRandomCountry()});
+    },
+    grabRandomCountry: function() {
+        var index = Math.random() * this.state.countries + 1;
+    },
+
     handleRegionSelect: function(e) {
         e.preventDefault();
         var selRegion = this.state.regions[e.target.selectedIndex]
