@@ -4,16 +4,16 @@ var RegionSelector = require('./RegionSelector.jsx');
 var CountryDisplay = require('./CountryDisplay.jsx');
 var GameView = require('./GameView.jsx');
 
-var CountriesBox = React.createClass({
+var GameBox = React.createClass({
 
     getInitialState: function() {
         return {
             countries: [],
             currentCountry: null,
             currentCountryBorders: [],
-            currentRegion: null,
-            regions: []
-            score: 0;
+            gameMode: 0,
+            regions: [],
+            score: 0
         };
     },
 
@@ -24,14 +24,7 @@ var CountriesBox = React.createClass({
         req.onload = function() {
             var data = JSON.parse(req.responseText);
             this.setState({countries: data});
-            var regions = [];
-            for (var country of this.state.countries) {
-                if (regions.indexOf(country.region) === -1) {
-                    regions.push(country.region);
-                }
-            }
-            this.setState({regions: regions, currentRegion:regions[0]});
-            this.setState({currentCountry:this.grabCountries('region', this.state.currentRegion)[0]});
+            this.setState({currentCountry: this.grabRandomCountry(), gameMode: parseInt(Math.random() * 5)});
             this.setState({currentCountryBorders: this.getCountryBorders(data[0].borders)});
         }.bind(this);
         req.send(null);
@@ -39,10 +32,12 @@ var CountriesBox = React.createClass({
 
     render: function() {
 
+        
+
         return (
             <div>
                 <h1>🌍 Countries of The World 🌍</h1>
-                <GameView country={this.state.currentCountry}/>
+                <GameView gameMode={this.state.gameMode} country={this.state.currentCountry} borders={this.state.currentCountryBorders}/>
             </div>
         );
     },
@@ -54,7 +49,10 @@ var CountriesBox = React.createClass({
         this.setState({currentCountry: this.grabRandomCountry()});
     },
     grabRandomCountry: function() {
-        var index = Math.random() * this.state.countries + 1;
+        console.log(this.state.countries);
+        var index = parseInt((Math.random() * this.state.countries.length) + 1);
+        console.log(this.state.countries[index]);
+        return this.state.countries[index];
     },
 
     handleRegionSelect: function(e) {
@@ -95,4 +93,4 @@ var CountriesBox = React.createClass({
 
 });
 
-module.exports = CountriesBox;
+module.exports = GameBox;

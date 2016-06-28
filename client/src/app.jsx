@@ -1,10 +1,10 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var CountriesBox = require('./components/CountriesBox.jsx');
+var GameBox = require('./components/GameBox.jsx');
 
 window.onload = function(){
   ReactDOM.render(
-    <div><CountriesBox /></div>,
+    <div><GameBox /></div>,
     document.getElementById('app')
   );
 }
