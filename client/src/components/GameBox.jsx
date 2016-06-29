@@ -22,10 +22,18 @@ var GameBox = React.createClass({
         var req = new XMLHttpRequest();
         req.open("GET", url);
         req.onload = function() {
-            console.log("retieved data");
-            var data = JSON.parse(req.responseText);
-            var country = this.grabRandomCountry(data);
-            this.setState({countries: data, currentCountry: country, gameMode: parseInt(Math.random() * 5), currentCountryBorders: this.getCountryBorders(country.borders, data)});
+            if (req.status === 200) {
+                console.log("got the data");
+                var data = JSON.parse(req.responseText);
+                var country = this.grabRandomCountry(data);
+                this.setState({
+                    countries: data,
+                    currentCountry: country,
+                    gameMode: parseInt(Math.random() * 5),
+                    currentCountryBorders: this.getCountryBorders(country.borders, data
+                )});
+            }
+
         }.bind(this);
         req.send(null);
         console.log("asking for data....");
@@ -52,7 +60,6 @@ var GameBox = React.createClass({
     },
 
     finishRound: function(correctAnswer) {
-        console.log('ca', correctAnswer);
         if (correctAnswer) {
             this.setState({score: this.state.score + 1, scoreDrawn:false});
         }
@@ -64,8 +71,17 @@ var GameBox = React.createClass({
         if (!countryData) {
             countryData = this.state.countries;
         }
-        var index = parseInt((Math.random() * countryData.length) + 1);
-        return countryData[index];
+        var index;
+        var selectedCountry = null;
+        while (selectedCountry === null) {
+            index = parseInt((Math.random() * countryData.length) + 1);
+            selectedCountry = countryData[index];
+            if (selectedCountry.borders.length === 0) {
+                selectedCountry = null;
+            }
+        }
+
+        return selectedCountry;
     },
 
     getCountryBorders: function(countryBorders, data) {
@@ -82,7 +98,6 @@ var GameBox = React.createClass({
                 return false;
             }
         });
-        console.log(countryBorders);
 
         // return countryBorders.map(function(countryCode) {
         //     for (var country of countriesData) {

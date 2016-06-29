@@ -19955,16 +19955,35 @@
 	    },
 	    render: function render() {
 	        var qa = this.generateQA();
+	        var screen;
+	        if (qa.question) {
+	            screen = React.createElement(
+	                "span",
+	                null,
+	                React.createElement(
+	                    "p",
+	                    null,
+	                    "Question:"
+	                ),
+	                React.createElement(
+	                    "p",
+	                    null,
+	                    qa.question
+	                ),
+	                React.createElement(GameInput, { onsubmit: this.handleAnswerSubmit, answer: qa.answer })
+	            );
+	        } else {
+	            screen = React.createElement(
+	                "h2",
+	                null,
+	                "Loading game...."
+	            );
+	        }
+	
 	        return React.createElement(
 	            "div",
 	            null,
-	            React.createElement(
-	                "p",
-	                null,
-	                "Question: ",
-	                qa.question
-	            ),
-	            React.createElement(GameInput, { onsubmit: this.handleAnswerSubmit, answer: qa.answer })
+	            screen
 	        );
 	    },
 	    generateQA: function generateQA() {
@@ -20043,10 +20062,16 @@
 	        var req = new XMLHttpRequest();
 	        req.open("GET", url);
 	        req.onload = function () {
-	            console.log("retieved data");
-	            var data = JSON.parse(req.responseText);
-	            var country = this.grabRandomCountry(data);
-	            this.setState({ countries: data, currentCountry: country, gameMode: parseInt(Math.random() * 5), currentCountryBorders: this.getCountryBorders(country.borders, data) });
+	            if (req.status === 200) {
+	                console.log("got the data");
+	                var data = JSON.parse(req.responseText);
+	                var country = this.grabRandomCountry(data);
+	                this.setState({
+	                    countries: data,
+	                    currentCountry: country,
+	                    gameMode: parseInt(Math.random() * 5),
+	                    currentCountryBorders: this.getCountryBorders(country.borders, data) });
+	            }
 	        }.bind(this);
 	        req.send(null);
 	        console.log("asking for data....");
@@ -20094,7 +20119,6 @@
 	    },
 	
 	    finishRound: function finishRound(correctAnswer) {
-	        console.log('ca', correctAnswer);
 	        if (correctAnswer) {
 	            this.setState({ score: this.state.score + 1, scoreDrawn: false });
 	        }
@@ -20106,8 +20130,17 @@
 	        if (!countryData) {
 	            countryData = this.state.countries;
 	        }
-	        var index = parseInt(Math.random() * countryData.length + 1);
-	        return countryData[index];
+	        var index;
+	        var selectedCountry = null;
+	        while (selectedCountry === null) {
+	            index = parseInt(Math.random() * countryData.length + 1);
+	            selectedCountry = countryData[index];
+	            if (selectedCountry.borders.length === 0) {
+	                selectedCountry = null;
+	            }
+	        }
+	
+	        return selectedCountry;
 	    },
 	
 	    getCountryBorders: function getCountryBorders(countryBorders, data) {
@@ -20124,7 +20157,6 @@
 	                return false;
 	            }
 	        });
-	        console.log(countryBorders);
 	
 	        // return countryBorders.map(function(countryCode) {
 	        //     for (var country of countriesData) {
@@ -20171,7 +20203,6 @@
 	    },
 	    handleSubmit: function handleSubmit(e) {
 	        e.preventDefault();
-	        console.log(this.props.answer);
 	        var answerVal = false;
 	        if (this.state.answerText) {
 	            answerVal = this.state.answerText.toLowerCase() === this.props.answer.toLowerCase();

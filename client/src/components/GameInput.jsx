@@ -22,10 +22,9 @@ var GameInput = React.createClass({
     },
     handleSubmit: function(e) {
         e.preventDefault();
-        console.log(this.props.answer);
         var answerVal = false;
         if (this.state.answerText) {
-            answerVal = this.state.answerText.toLowerCase() === this.props.answer.toLowerCase();    
+            answerVal = this.state.answerText.toLowerCase() === this.props.answer.toLowerCase();
         }
         this.setState({answerText: null});
         if (!answerVal) {

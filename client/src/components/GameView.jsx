@@ -11,11 +11,22 @@ var GameView = React.createClass({
     },
     render: function() {
         var qa = this.generateQA();
+        var screen;
+        if (qa.question) {
+            screen = (
+                <span>
+                    <p>Question:</p>
+                    <p>{qa.question}</p>
+                    <GameInput onsubmit={this.handleAnswerSubmit} answer={qa.answer} />
+                </span>
+            );
+        } else {
+            screen = (<h2>Loading game....</h2>);
+        }
+
         return (
             <div>
-                <p>Question: {qa.question}</p>
-                {/*<p>Answer: {qa.answer}</p>*/}
-                <GameInput onsubmit={this.handleAnswerSubmit} answer={qa.answer} />
+                {screen}
             </div>
         );
     },
