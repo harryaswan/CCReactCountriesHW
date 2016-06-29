@@ -4,14 +4,25 @@ var GameInput = require("./GameInput.jsx");
 
 var GameView = React.createClass({
 
+    getInitialState: function() {
+        return {
+            qa: null
+        };
+    },
     render: function() {
-
-        var name = "Loading...";
+        var qa = this.generateQA();
+        return (
+            <div>
+                <p>Question: {qa.question}</p>
+                {/*<p>Answer: {qa.answer}</p>*/}
+                <GameInput onsubmit={this.handleAnswerSubmit} answer={qa.answer} />
+            </div>
+        );
+    },
+    generateQA: function() {
         var question = null;
         var answer = null;
-
         if (this.props.country) {
-
             switch (this.props.gameMode) {
                 case 0:
                     question = "What is the capital of " + this.props.country.name + "?";
@@ -23,40 +34,29 @@ var GameView = React.createClass({
                     break;
                 case 2:
                     var bordersString = "";
-                    for (bcIndex in this.props.borders) {
-                        bordersString += this.props.borders[bcIndex];
+                    for (var bcIndex in this.props.borders) {
+                        bordersString += this.props.borders[bcIndex].name;
                         bordersString += (bcIndex < (this.props.borders.length - 2)) ? ", " : " and ";
                     }
-                    question = "What country borders all of these countries: " + bordersString;
+                    bordersString = bordersString.substring(0, bordersString.length - 5);
+                    question = "What country borders all of these countries: " + bordersString + "?";
                     answer = this.props.country.name;
                     break;
                 case 3:
-                    question = "3What is the capital of " + this.props.country.name;
-                    answer = this.props.country.capital;
+                    question = "What is the country with the alpha code of " + this.props.country.alpha3Code + "?";
+                    answer = this.props.country.name;
                     break;
                 case 4:
-                    question = "4What is the capital of " + this.props.country.name;
-                    answer = this.props.country.capital;
+                    question = "What is the top level domain of " + this.props.country.name +"? (Including the dot)";
+                    answer = this.props.country.topLevelDomain[0];
                     break;
-
-
-
             }
         }
 
-        return (
-            <div>
-                <p>CountryName: {name}</p>
-                <p>GameMode: {this.props.gameMode}</p>
-                <br></br>
-                <p>Question: {question}</p>
-                <p>Answer: {answer}</p>
-                <GameInput onSubmit={this.handleAnswerSubmit} />
-            </div>
-        );
+        return {question: question, answer: answer};
     },
-    handleAnswerSubmit: function(answerText) {
-        this.props.finishRound(this.state.answer === answerText);
+    handleAnswerSubmit: function(answer) {
+        this.props.finishRound(answer);
     }
 
 });

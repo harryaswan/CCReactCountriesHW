@@ -12,8 +12,8 @@ var GameBox = React.createClass({
             currentCountry: null,
             currentCountryBorders: [],
             gameMode: 0,
-            regions: [],
-            score: 0
+            score: 0,
+            scoreDrawn: false
         };
     },
 
@@ -24,9 +24,8 @@ var GameBox = React.createClass({
         req.onload = function() {
             console.log("retieved data");
             var data = JSON.parse(req.responseText);
-            this.setState({countries: data});
-            this.setState({currentCountry: this.grabRandomCountry(), gameMode: parseInt(Math.random() * 5)});
-            this.setState({currentCountryBorders: this.getCountryBorders(data[0].borders)});
+            var country = this.grabRandomCountry(data);
+            this.setState({countries: data, currentCountry: country, gameMode: parseInt(Math.random() * 5), currentCountryBorders: this.getCountryBorders(country.borders, data)});
         }.bind(this);
         req.send(null);
         console.log("asking for data....");
@@ -34,11 +33,19 @@ var GameBox = React.createClass({
 
     render: function() {
 
+        var score;
+        if (!this.state.scoreDrawn) {
+            score = (<p className='correct'>Score: <span className='scoreNumber'>{this.state.score}</span></p>);
+            this.state.scoreDrawn = true;
+        } else {
+            score = (<p>Score: <span className='scoreNumber'>{this.state.score}</span></p>);
+        }
 
 
         return (
             <div>
                 <h1>🌍 Countries of The World 🌍</h1>
+                {score}
                 <GameView gameMode={this.state.gameMode} country={this.state.currentCountry} borders={this.state.currentCountryBorders} finishRound={this.finishRound}/>
             </div>
         );
@@ -47,45 +54,38 @@ var GameBox = React.createClass({
     finishRound: function(correctAnswer) {
         console.log('ca', correctAnswer);
         if (correctAnswer) {
-            this.setState({score: this.state.score + 1});
+            this.setState({score: this.state.score + 1, scoreDrawn:false});
         }
-        this.setState({currentCountry: this.grabRandomCountry()});
+        var country = this.grabRandomCountry();
+        this.setState({currentCountry: country, currentCountryBorders: this.getCountryBorders(country.borders), gameMode: parseInt(Math.random() * 5)});
     },
-    grabRandomCountry: function() {
-        console.log(this.state.countries);
-        var index = parseInt((Math.random() * this.state.countries.length) + 1);
-        console.log(this.state.countries[index]);
-        return this.state.countries[index];
+    grabRandomCountry: function(data) {
+        var countryData = data;
+        if (!countryData) {
+            countryData = this.state.countries;
+        }
+        var index = parseInt((Math.random() * countryData.length) + 1);
+        return countryData[index];
     },
 
-    handleRegionSelect: function(e) {
-        e.preventDefault();
-        var selRegion = this.state.regions[e.target.selectedIndex]
-        this.setState({currentRegion: selRegion});
-        this.setState({currentCountry:this.grabCountries('region', selRegion)[0]});
-    },
-    handleCountrySelect: function(e) {
-        e.preventDefault(); // not needed in this example - but good practice to have it here if in a form, etc.
-        var country = this.grabCountries('region', this.state.currentRegion)[e.target.selectedIndex];
-        this.setState({currentCountry: country, currentCountryBorders: this.getCountryBorders(country.borders)});
-    },
-    grabCountries: function(key, val) {
-        return this.state.countries.filter(function(country) {
-            return country[key] === val;
-        })
-    },
-    getCountryBorders: function(countryBorders) {
+    getCountryBorders: function(countryBorders, data) {
 
-        return this.state.countries.filter(function(country) {
+        var countriesData = data;
+        if (!countriesData) {
+            countriesData = this.state.countries;
+        }
+
+        return countriesData.filter(function(country) {
             if (countryBorders.indexOf(country.alpha3Code) > -1) {
                 return true;
             } else {
                 return false;
             }
         });
+        console.log(countryBorders);
 
         // return countryBorders.map(function(countryCode) {
-        //     for (var country of this.state.countries) {
+        //     for (var country of countriesData) {
         //         if (country.alpha3Code === countryCode) {
         //             return country;
         //         }
